@@ -10,17 +10,19 @@ from typing import BinaryIO, Iterable, Tuple
 from tqdm import tqdm
 
 
-def cursor_generator(index_lines: Iterable[bytes]) -> Iterable[Tuple[int, int]]:
+def cursor_generator(index_lines: BinaryIO) -> Iterable[Tuple[int, int]]:
     """
     Generate cursor position and read size for each compressed block. Parses
     the contents of the `*-multistream-index.txt.bz2` file.
 
     Arguments:
-        index_lines: iterator over lines of the index file
+        index_lines: iterator over index data
 
     Returns:
         cursor position and block size
     """
+    index_lines = bz2.BZ2File(index_lines)
+
     last_cursor = 0
 
     for line in index_lines:
@@ -41,7 +43,7 @@ def cursor_generator(index_lines: Iterable[bytes]) -> Iterable[Tuple[int, int]]:
 
 
 def multi_stream_generator(
-    fio: BinaryIO, index: Iterable[Tuple[int, int]], show_progress: bool = True
+    fio: BinaryIO, index: Iterable[Tuple[int, int]], show_progress: bool = False
 ) -> Iterable[bytes]:
     """
     Generate blocks of decompressed data.

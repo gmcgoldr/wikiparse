@@ -1,10 +1,13 @@
 import bz2
+import io
 
 from wikiparse import dumputils
 
 
 def test_cursor_generator():
     lines = [b"5:x:y\n", b"5:\n", b"\t \n", b"10:\n", b"11:\n"]
+    lines = bz2.compress(b"".join(lines))
+    lines = io.BytesIO(lines)
     reads = dumputils.cursor_generator(lines)
     assert list(reads) == [(0, 5), (5, 5), (10, 1), (11, -1)]
 
